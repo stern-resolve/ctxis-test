@@ -1,4 +1,4 @@
-# Context sen-level interview exercise
+# Context senior-level interview exercise
 
 This repository contains the skeleton Django `servers` application that you have been asked to complete.
 Below is a description of the problem, and what features you need to implement.
@@ -20,7 +20,8 @@ Context has a lot of servers, and successful logins to them are logged to a cent
 service outputs the **last successful login for each user on the server**, a sample of which can be [found in 
 data/logins.csv](data/logins.csv).
 
-The task is to upload and process this CSV file and store the results in a database, 
+The task is to create a view where someone may upload this CSV file. The file
+should then be processed and the results stored in a database, 
 which you will need to model. A brief overview of the file is given below.
 
 **Bonus points:** Process the CSV file asynchronously.
@@ -64,6 +65,13 @@ The Django application should treat multiple lines like this as a single login a
 system should store one piece of contact information per user. 
 
 **Bonus points:** If users have multiple contacts, store all values that the CSV provides.
+
+#### Docker
+
+The Context dev team uses Docker and docker-compose across all projects.
+Submit your project with a docker-compose.yml file, such that we can start
+your project using `docker-compose up`. You are free to use images from Docker
+Hub, or write your own Dockerfiles.
 
 #### Dates
 
