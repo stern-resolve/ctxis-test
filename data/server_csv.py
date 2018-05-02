@@ -20,6 +20,7 @@ class User(object):
 	def __repr__(self):
 		return "{0}: full_name:{1}".format(self.username, self.full_name)
 
+	@property
 	def key(self):
 		return self.username
 
@@ -34,6 +35,7 @@ class Server(object):
 	def __repr__(self):
 		return "{0}: name:{1}".format(self.ipaddr,self.name)
 
+	@property
 	def key(self):
 		return self.ipaddr
 
@@ -45,8 +47,9 @@ class Login(object):
 		self.server = server
 
 	def __repr__(self):
-		return "{0}->{1}@{2}".format(self.server.name or self.server.ip, self.user.username,self.login_date)
+		return "{0}->{1}@{2}".format(self.user.username, self.server.name or self.server.ip, self.login_date)
 
+	@property
 	def key(self):
 		return "{0}~{1}~{2}".format(self.login_date, self.user.key, self.server.key)
     	
@@ -147,7 +150,7 @@ class CSVParser(object):
 		else:
 			user = User(username, full_name)
 			self.users[username]=user
-			
+
 		# fix login time...
 		for src in self.date_seps:
 			login_time=login_time.replace(src,'-')
@@ -156,7 +159,7 @@ class CSVParser(object):
     		#if yr2d in login_time:
 			login_time = login_time.replace(yr2d, yr4d)
     		
-		login_dt = parse_date(login_time)
+		login_dt = parse_date(login_time).date()
 		
 		# sanity check for login time which must be a valid date 
 		assert(login_dt!=None)
@@ -168,7 +171,8 @@ class CSVParser(object):
 		login = Login(login_dt, user, server)
 		if not login.key in self.logins:
 			# not a duplicate entry, so can record
-			self.logins[login.key].append(login)
+			
+			self.logins[login.key] = login
 		else:
 			# duplicate entry so skip
 			pass
