@@ -164,8 +164,8 @@ class CSVParser(object):
 			
 			# TODO: determine if data store is persistent across file uploads
 			# if persistent:
-				# we only need to upload new servers - will have
-				# use a tag to identify "new" servers from this file as distinct
+				# we only need to upload new servers - will have to design a mechanism
+				# to identify "new" servers from this file as distinct
 				# from servers already in the data store
 
 			# if not persistent:
