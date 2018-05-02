@@ -5,6 +5,13 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# VSCode meta
+.vscode
+.vscode/*
+
+# test data operations
+logins2.csv
+
 # C extensions
 *.so
 
