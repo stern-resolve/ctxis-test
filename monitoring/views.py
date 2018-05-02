@@ -37,5 +37,5 @@ def logins_by_server(request):
 	# the client must render the data correctly and create filter controls etc
 
 	jsondata="{\"servers\":{ \"stone\":{\"ipaddr\":\"201.23.18.80\"}},\"logins\":{...},\"users\":{}}"
-	return HttpReponse(jsondata,mimetype='application/json')
+	return HttpResponse(jsondata,mimetype='application/json')
 
