@@ -210,6 +210,8 @@ class CSVParser(object):
 				user.update_contact(contact)
 		else:
 			user = User(username, full_name)
+			if contact:
+				user.update_contact(contact)
 			self.users[username]=user
 
 		# fix login time...
