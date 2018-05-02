@@ -158,7 +158,7 @@ class CSVParser(object):
 		
 		
 		# 2. generating final data to update database
-		for server_ip,server in self.servers_by_ip:
+		for server_ip,server in self.servers_by_ip.items():
 			# probably use an ORM for the DB interaction, but broadly we
 			# need to update servers to the server table in the data store
 			
@@ -170,6 +170,12 @@ class CSVParser(object):
 
 			# if not persistent:
 				# insert all of these servers into data store
+			pass
+		for username,user in self.users.items():
+			# update user to data store
+			pass
+		for login_key,login in self.logins.items():
+			# update login to data store
 			pass
 
 	def fix_row(self, row):
