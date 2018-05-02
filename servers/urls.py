@@ -15,6 +15,9 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from monitoring import views
 
 urlpatterns = [
+    url('/upload_file', views.upload_csv),
+    url('/logins', views.logins_by_server)
 ]

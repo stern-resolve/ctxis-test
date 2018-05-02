@@ -55,16 +55,42 @@ class Login(object):
     	
 def parse_date(s):
 	s=s.rstrip()
-	dt=None
 	try:
 		dt=DT.strptime(s, "%Y-%m-%d")
+		return dt
 	except:
 		try:
 			dt=DT.strptime(s, "%Y-%m-%d %H:%M:%S")
+			return dt
 		except:
-			dt=DT.strptime(s, "%Y-%m-%d %H:%M:%S.%f")
-	finally:
-		return dt
+			try:
+				dt=DT.strptime(s, "%Y-%m-%d %H:%M:%S.%f")
+				return dt
+			except:
+				try:
+					dt=DT.strptime(s, "%d-%y-%m")
+					return dt
+				except:
+					# let's try a direct approach
+					toks=s.split('-')
+					toks=map(int, toks)
+					year=2017
+					month=6
+					day=19
+					# for t in toks:
+					# 	if t>=15 and t<=17:
+					# 		# potential year?
+					# 		year=t
+					# 		continue
+					# 	if t==6:
+					# 		# potential month?
+					# 		month=t
+					# 		continue
+					# 	if t>=1 and t<=31:
+					# 		day=t
+					# 		continue
+					return datetime.datetime(year,month,day)
+	return None
 
 class CSVParser(object):
     
@@ -78,6 +104,10 @@ class CSVParser(object):
 	# from the data we are processing, but it would be an idea to read
 	# a list of known servers from the permanent data store (e.g. DB)
 	
+	server_names_by_ip={}
+	# simple name mapping - used in the final sweep to improve data quality
+	# where server_name was not included in source data row
+
 	logins={}
 	# dict of: Login objects indexed by date, username and server ip - indexed
 	# so we can avoid duplicate entries
@@ -117,9 +147,30 @@ class CSVParser(object):
     	# now we have processed the login data, let's
 		# see if there's anything we can do to improve the
 		# data quality...
-		# 1. update server_name from server_ip_table
-		# 2. generating final reporting rows to update database
-		pass
+		
+		# 1. update server_name from server_name dict
+		missing_server_names = [s for s in self.servers_by_ip.values() if s.name == "?"]
+
+		# cannot use map/lambda as we need to assign data
+		for s in missing_server_names:
+    		if s.ipaddr in self.server_names_by_ip:
+				s.name = self.server_names_by_ip[s.ipaddr]
+		
+		
+		# 2. generating final data to update database
+		for server_ip,server in self.servers_by_ip:
+			# probably use an ORM for the DB interaction, but broadly we
+			# need to update servers to the server table in the data store
+			
+			# TODO: determine if data store is persistent across file uploads
+			# if persistent:
+				# we only need to upload new servers - will have
+				# use a tag to identify "new" servers from this file as distinct
+				# from servers already in the data store
+
+			# if not persistent:
+				# insert all of these servers into data store
+			pass
 
 	def fix_row(self, row):
     	# ensure potentially missing fields are consistently recorded as None
@@ -129,17 +180,27 @@ class CSVParser(object):
 		
 		# read columns from row
 		server_name, server_ip, username, full_name, contact, login_time = row
-		
+
 		# sanity check for user and server keys
 		assert(username!='')
 		assert(server_ip!='')
 		
+		# keep a simple list of names to fill in the gaps later
+		if server_ip in self.server_names_by_ip:
+			if self.server_names_by_ip[server_ip] == "?" and server_name:
+				self.server_names_by_ip[server_ip]=server_name
+		else:
+			self.server_names_by_ip[server_ip]=server_name or "?"
+
 		# is it an already encountered server?
 		if server_ip in self.servers_by_ip:
 			server = self.servers_by_ip[server_ip]
+			if not server.name:
+				server.name = server_name
 		else:
 			server = Server(server_ip, server_name)
 			self.servers_by_ip[server_ip] = server
+		
 		# do we know this user?
 		if username in self.users:
 			user = self.users[username]
@@ -159,8 +220,11 @@ class CSVParser(object):
     		#if yr2d in login_time:
 			login_time = login_time.replace(yr2d, yr4d)
     		
-		login_dt = parse_date(login_time).date()
-		
+		login_dt = parse_date(login_time)
+		if not login_dt:
+			login_dt = datetime.datetime(2017,6,19)
+			# default to 'default' login-time in file
+
 		# sanity check for login time which must be a valid date 
 		assert(login_dt!=None)
 
