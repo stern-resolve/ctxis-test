@@ -153,7 +153,7 @@ class CSVParser(object):
 
 		# cannot use map/lambda as we need to assign data
 		for s in missing_server_names:
-    		if s.ipaddr in self.server_names_by_ip:
+			if s.ipaddr in self.server_names_by_ip:
 				s.name = self.server_names_by_ip[s.ipaddr]
 		
 		
